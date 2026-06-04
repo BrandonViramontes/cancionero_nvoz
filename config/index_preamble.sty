@@ -1,0 +1,90 @@
+\ProvidesPackage{config/index_preamble}
+
+% --- CREACION DE INDICE ---
+\newindex{songindex}{songs_index} % Índice de canciones personalizado % Índice de canciones personalizado %{mainindex[alphabetical identifier]}{idxfile[auxiliar file]}
+\indexsongsas{songindex}{\thepage} % Mostrar números de página
+
+% Modificar el comando \beginsong para incluir números de canción en el índice así como el autor
+\makeatletter
+\xpatchcmd{\SB@@@beginsong}
+  {\SB@addtoindexes\songtitle}  % Búsqueda: Lo que el paquete hace originalmente (enviar solo el título)
+  {\SB@addtoindexes{\thesongnum.\ \songtitle\ifx\songauthors\empty\else\ (\songauthors)\fi}} % Reemplazo: Enviamos "NUMERO. TITULO (AUTOR)"
+  {}{} % Éxito / Fallo
+\makeatother
+
+
+
+% ----------------------------------------------------------------------------------- %
+% El paquete songs define idxblock como un no-op y lo reemplaza en cada
+% llamada a \showindex, apuntando al entorno interno SB@lgidx definido
+% dentro de \SB@maketitleindex. Por ello, cualquier redefinición directa
+% de \idxblock en el preámbulo queda sobreescrita en tiempo de ejecución.
+%
+% La solución es redefinir \SB@maketitleindex completo, modificando únicamente
+% el begin-code de SB@lgidx para inyectar el nombre de sección debajo del
+% recuadro con la letra. El texto se declara con \raggedright y el \par
+% dentro del mismo grupo para que la alineación izquierda surta efecto.
+%
+% Los nombres se registran con \@namedef bajo el esquema songidxname@<LETRA>
+% y se recuperan con \songidxname{##1}, donde ##1 es el argumento de SB@lgidx.
+
+% --- Nombres descriptivos para las secciones del índice ---
+\makeatletter
+
+\@namedef{songidxname@A}{Entrada}
+\@namedef{songidxname@B}{Señor ten piedad}
+\@namedef{songidxname@C}{Gloria}
+\@namedef{songidxname@D}{Aclamación}
+\@namedef{songidxname@E}{Presentación de Dones}
+\@namedef{songidxname@F}{Santo}
+\@namedef{songidxname@G}{Padre Nuestro}
+\@namedef{songidxname@H}{Fracción del Pan}
+\@namedef{songidxname@I}{Comunión}
+\@namedef{songidxname@J}{Postcomunión}
+\@namedef{songidxname@K}{Adoración Eucarística}
+\@namedef{songidxname@L}{Salida}
+\@namedef{songidxname@M}{Marianos}
+\@namedef{songidxname@N}{Espíritu Santo}
+\@namedef{songidxname@O}{Espiritualidad de la Cruz y más}
+\@namedef{songidxname@P}{Adviento / Navidad}
+\@namedef{songidxname@Q}{Cuaresma}
+\@namedef{songidxname@R}{Ambientación}
+\@namedef{songidxname@S}{Canciones}
+\@namedef{songidxname@T}{NVoz}
+\@namedef{songidxname@Z}{Versiones CEC Zac}
+
+\newcommand{\songidxname}[1]{%
+  \ifcsname songidxname@#1\endcsname
+    \csname songidxname@#1\endcsname
+  \fi
+}
+
+% Redefinir SB@maketitleindex para inyectar el nombre de sección
+% debajo del recuadro con la letra. Solo se modifica el begin-code
+% de SB@lgidx; el resto es idéntico al original del paquete songs.
+\renewcommand\SB@maketitleindex{%
+  \ifnum\idxheadwidth>\z@%
+    \renewenvironment{SB@lgidx}[1]{%
+      \hbox{\SB@colorbox\idxbgcolor{\vbox{%
+        \hbox to\idxheadwidth{{\idxheadfont\relax##1}\hfil}%
+      }}}%
+      \nobreak\vskip3\p@\@plus2\p@\@minus2\p@\nointerlineskip%
+      \noindent{\large\bfseries\raggedright\songidxname{##1}\par}\smallskip% <- Formato
+    }{\penalty-50\vskip5\p@\@plus5\p@\@minus4\p@}%
+  \else%
+    \renewenvironment{SB@lgidx}[1]{}{}%
+  \fi%
+  \renewenvironment{SB@smidx}[1]{}{}%
+  \renewcommand\idxentry[2]{%
+    \SB@ellipspread{\idxtitlefont\relax\ignorespaces##1\unskip}%
+                   {{\idxrefsfont\relax##2}}%
+  }%
+  \renewcommand\idxaltentry[2]{%
+    \SB@ellipspread{\idxlyricfont\relax\ignorespaces##1\unskip}%
+                   {{\idxrefsfont\relax##2}}%
+  }%
+  \SB@displayindex%
+}
+
+\makeatother
+% ----------------------------------------------------------------------------------- %

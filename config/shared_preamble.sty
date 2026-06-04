@@ -1,0 +1,121 @@
+\ProvidesPackage{config/shared_preamble}
+
+\noversenumbers % Eliminar números de versos
+\songcolumns{2} % Poner las canciones en 2 columnas
+
+\songpos{1} % Evitar saltos de páginas dentro de canciones, pero permitir saltos de columna. 
+            % niveles: 0= Libre, 1= evitar page-turns, 2= evitar page-breaks, 3 evitar todo (predeterminado). 
+
+\spenalty=-5000  % Penalizar fuertemente los cortes de columna en los límites entre canciones.
+                 % Valores negativos altos fuerzan que cada canción comience en una columna nueva.
+
+\afterpreludeskip= 1pt plus 1pt minus 0pt % Definir el espacio vertical entre el prelude. (título, autor, referencias)
+\beforepostludeskip=1pt plus 1pt minus 0pt % Definir el espacio vertical entre el postlude (copyright, licencia) y el final de la canción.
+
+\vvpenalty=-300  % Permitir con facilidad cortes de columna entre versos consecutivos. Valores negativos reducen la resistencia al corte, -10000 lo forzaría siempre.
+\ccpenalty=-300  % Permitir con facilidad cortes de columna entre coros consecutivos. Útil para coros largos que no caben en una sola columna.
+\vcpenalty=-300  % Permitir cortes de columna en la transición verso→coro.
+\cvpenalty=-300  % Permitir cortes de columna en la transición coro→verso.
+\versesep=13pt plus 2pt minus 2pt % Definir el espacio vertical entre versos y coros consecutivos dentro la canción
+%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+% --- Cargar fuentes --- (Fuentes nativas de LaTeX)
+\usepackage[T1]{fontenc} 
+\usepackage{lmodern}     % Fuente base mejorada
+\usepackage{mathpazo}   % Palatino (elegante y estable)
+\usepackage{helvet}     % Helvética para los acordes (limpia y neutra)
+
+% --- Fuente de titulos ---
+\renewcommand{\stitlefont}{
+    \LARGE                  % Tamaño grande
+    \bfseries              % Negrita
+    \centerline            % Centrado
+    \sffamily              % Opcional: Quitar para usar Palatino, dejar para usar Helvética
+    \color{darkorange}
+}
+
+% % --- Fuente de secciones ---
+% \renewcommand{\songsection}[1]{%
+%   \section*{\textcolor{darkorange}{#1}}%
+% }
+
+
+% --- Fuente de acordes ---
+\renewcommand{\printchord}[1]{
+    \sffamily        % Usa Helvética (Sans Serif)
+    \normalsize      % Mismo tamaño que la letra (antes tenía \large)
+    %\bfseries        % Negrita (recomendado para que se distinga, pero opcional)
+    \color{chords}
+    #1
+}
+
+% --- Fuente de li={}------
+\renewcommand{\extendpostlude}{
+  \songcopyright
+  {\scriptsize\songlicense\par} %Default: \tiny. Recomendado: \scriptsize ó \footnotesize
+}
+
+
+% % --- Fuente de letras ---
+% \renewcommand{\lyricfont}{
+%   \sffamily
+%   \large  %\normalsize
+% }
+
+
+\renewcommand{\chorusfont}{\bfseries}
+
+
+% --- Numeración --- 
+\newcommand{\songsectionletter}{} % Macro para guardar la letra de la sección (A, B, C...)
+\renewcommand{\thesongnum}{\songsectionletter\arabic{songnum}} % Redefinición del formato de numeración 
+
+
+
+
+%%% BLOQUES CONDICIONALES %%%
+
+%% MOSTRAR ENCABEZADOS DE SECCIONES ( EL ENCABEZADO AÑADE SALTOS DE PAGINA EN LA VERSION ESQUEMA, POR LO QUE SE RECOMIENDA MANTENERLO DESHABILITADO EN DICHA VERSION ) %%%
+\newif\ifheader
+\headertrue % (True (default) → mostrar saltos de página)
+
+%% MOSTRAR LINKS DE CONSULTA EMBEBIDOS EN CANCIONES 
+\newif\iflink
+\linktrue % (True (default) → Mostrar Links)
+
+%% MOSTRAR SUBDIVISIONES EN LAS SECCIONES
+\newif\ifsubheader
+\subheadertrue % (True (default) → mostrar subdivisiones)
+
+%% MOSTRAR TABLATURAS DE ACORDES
+\newif\ifgtabs
+\gtabstrue % (True (default) → mostrar tablas de acordes)
+
+%% ETIQUETAS DE TIEMPO LITÚRGICO Y MOMENTO DE LA CELEBRACIÓN
+\newif\iflabel
+\labeltrue % (True (default) → mostrar etiquetas de tiempo litúrgico y momento)
+
+%% MOSTRAR ACORDES COMPLETOS DE LAS CANCIONES
+\newif\ifnofullchords
+\nofullchordstrue % (True (default) → No mostrar acordes completos)
+
+
+%% HEADER DE SECCIONES %%%
+\newcommand{\sectionheader}[1]{
+    \ifheader
+        \sclearpage
+        \sepindexesfalse
+        \songsection{#1}
+        \hrule \vspace{0.5cm}
+    \fi
+}
+
+%% Tiempos liturgicos
+\newcommand{\tiempoliturgico}[1]{{\noindent\scriptsize\textit{\textbf{Tiempo:} #1}}}
+\newcommand{\uso}[1]{{\noindent\scriptsize\textit{\textbf{Uso:} #1}}}
+\newcommand{\celebracion}[1]{{\noindent\scriptsize\textit{\textbf{Celebración:} #1}}}
+
+

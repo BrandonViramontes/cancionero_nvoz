@@ -1,0 +1,68 @@
+\documentclass[letterpaper, 10pt]{article}
+\usepackage{bookmark}
+\usepackage[margin=1.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[dvipsnames,table]{xcolor}  % Añade las opciones que necesites
+\usepackage{titlesec}  % Para dar fotmato a titulos
+\usepackage{pdfpages}
+\usepackage[chorded]{songs} % https://songs.sourceforge.net/songsdoc/songs.html
+% \usepackage[chorded, noshading]{songs} %Elimina el sombreado de las cajas de texto
+\usepackage{ifpdf}  % Recommended fix for songs package compatibility issues
+\usepackage{hyperref} % For clickable links in the PDF
+\usepackage{xpatch}
+\usepackage{config/shared_preamble} % Cargar configuración personalizada
+\usepackage{config/index_preamble}
+\usepackage{soul}
+
+\usepackage{background}
+\usepackage{graphicx}
+
+
+\backgroundsetup{
+    scale=.9,
+    angle=0,
+    opacity=0.15,  % Opacidad real de 0 a 1
+    contents={}, %Vacio para no usar una imagen de fondo en las primeras páginas, lo declaro más adelante
+    position=current page.south east, % o page.north, page.south,page.north east, page.south west, etc.
+    vshift=120pt, % Ajusta la posición vertical
+    hshift=-80pt  % Ajusta la posición horizontal
+}
+
+% Definir colores personalizados
+\definecolor{chords}{RGB}{54,95,145} %rgb(54, 95, 145)
+\definecolor{darkorange}{RGB}{102, 0, 15}   % rgb(102, 0, 15)
+
+% --- Configuración personalizada para el cancionero ---
+\setlength{\sbarheight}{0pt} % Ocultar lineas de inicio y final de cancion
+\nosongnumbers % No mostrar número de cancion
+\linkfalse   % MOSTRAR LINKS EMBEBIDOS EN CANCIONES (True → Mostrar Links)
+\minfrets=5 % Mostrar siempre 5 trastes para acordes con gtabs
+
+\begin{document}
+
+\pagenumbering{gobble} % Oculta la numeración de páginas
+
+% Portada personalizada
+\includepdf[pages=1]{assets/portada_nvoz.pdf}
+
+% Índice de Cantos
+\newgeometry{top=2cm, bottom=2cm, left=2cm, right=2cm} % Ajustar márgenes para el índice
+\showindex[2]{Índice de Cantos}{songindex} % [<columns>]{<title>}{<id>[mainindex[alphabetical identifier]]}
+\restoregeometry % Restaurar márgenes originales
+\newpage 
+
+\backgroundsetup{contents={\includegraphics[width=10cm, decodearray={1 0 1 0 1 0}]{assets/nvoz.png}}} % Agregar imagen de fondo a partir de aquí, además invertir colores para que se vea bien con la opacidad
+
+\pagenumbering{arabic} % reiniciar numeración de páginas
+
+% \includeonlysongs{19}  % el número de la canción que quieres exportar
+
+% Iniciar el entorno de canciones
+\begin{songs}{songindex} % Usar el índice personalizado 
+\input{sections/cantos_Nvoz.tex}
+\end{songs}
+
+\end{document}
+
+
