@@ -15,12 +15,18 @@ jobs:
       - name: Descargar código del repositorio
         uses: actions/checkout@v4
 
+      - name: Verificar songidx
+        run: |
+          kpsewhich --format=texmfscripts songidx.lua || echo "NO ENCONTRADO"
+          find / -name "songidx.lua" 2>/dev/null || echo "No existe en el sistema"
+
       - name: Compilar LaTeX
         uses: xu-cheng/latex-action@v3
         with:
           root_file: nvoz.tex
           compiler: latexmk
           args: -pdf -shell-escape -outdir=build -interaction=nonstopmode
+          extra_packages: "songs"
 
       - name: Crear etiqueta de versión
         id: tag
@@ -56,12 +62,12 @@ jobs:
       - name: Subir artefacto web
         uses: actions/upload-pages-artifact@v3
         with:
-          path: _site/          # ← Ruta explícita al directorio
+          path: _site/
 
   deploy_pages:
     needs: build_latex
     runs-on: ubuntu-latest
-    permissions:                # ← Permisos declarados en el job correcto
+    permissions:
       pages: write
       id-token: write
     environment:
