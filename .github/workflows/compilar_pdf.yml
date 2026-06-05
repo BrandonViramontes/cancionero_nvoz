@@ -1,63 +1,73 @@
 name: Compilar y Publicar PDF de LaTeX
-
 on:
   push:
     branches:
-      - main  # Se ejecuta cada vez que subes cambios a la rama 'main'
+      - main
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
-  
+permissions:
+  contents: write
+
 jobs:
   build_latex:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write  # Permiso obligatorio para que GitHub pueda publicar el PDF
-
     steps:
-      # 1. Copiar el código de tu repositorio al servidor de GitHub
       - name: Descargar código del repositorio
         uses: actions/checkout@v4
 
-      # 2. Compilar usando LaTeXmk (leerá tu archivo latexmkrc automáticamente)
       - name: Compilar LaTeX
         uses: xu-cheng/latex-action@v3
         with:
           root_file: nvoz.tex
-          # Forzamos el uso de latexmk si tu latexmkrc requiere parámetros específicos
           compiler: latexmk
-          # Le indicamos que use el archivo de salida build como haces localmente
           args: -pdf -shell-escape -outdir=build -interaction=nonstopmode
 
-      # 3. Crear una etiqueta (tag) automática para el lanzamiento
       - name: Crear etiqueta de versión
         id: tag
         run: echo "version=v$(date +'%Y.%m.%d-%H%M')" >> $GITHUB_OUTPUT
 
-      # 4. Publicar el PDF (lo buscamos dentro de la carpeta build)
       - name: Publicar PDF en Releases
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.version }}
           name: Cancionero - ${{ steps.tag.outputs.version }}
-          files: build/nvoz.pdf  # <--- Apunta a la carpeta build del servidor
+          files: build/nvoz.pdf
 
-       # NUEVO PASO: Subir el PDF a la rama de vista previa
-      - name: Actualizar PDF en rama de vista previa
+      - name: Organizar archivo web
         run: |
-          # Configurar la identidad del bot de GitHub
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@://github.com"
-          
-          # Crear una carpeta temporal ajena al Git actual para maniobrar
-          mkdir despliegue_pdf
-          cp build/nvoz.pdf despliegue_pdf/
-          cd despliegue_pdf
-          
-          # Iniciar un Git limpio apuntando a la rama huérfana 'pdf-preview'
-          git init
-          git checkout --orphan pdf-preview
-          git add nvoz.pdf
-          git commit -m "Actualizar vista previa del cancionero (${{ steps.tag.outputs.version }})"
-          
-          # Forzar la subida del PDF para reemplazar el viejo por el nuevo
-          git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@://github.com{{ github.repository }}.git" pdf-preview --force
+          mkdir -p _site
+          cp build/nvoz.pdf _site/
+          cat > _site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Cancionero</title>
+            <style>
+              body { margin: 0; }
+              iframe { width: 100vw; height: 100vh; border: none; }
+            </style>
+          </head>
+          <body>
+            <iframe src="nvoz.pdf"></iframe>
+          </body>
+          </html>
+          EOF
+
+      - name: Subir artefacto web
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site/          # ← Ruta explícita al directorio
+
+  deploy_pages:
+    needs: build_latex
+    runs-on: ubuntu-latest
+    permissions:                # ← Permisos declarados en el job correcto
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Desplegar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
