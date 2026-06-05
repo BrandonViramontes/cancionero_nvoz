@@ -42,22 +42,22 @@ jobs:
           files: build/nvoz.pdf  # <--- Apunta a la carpeta build del servidor
 
        # NUEVO PASO: Subir el PDF a la rama de vista previa
+            # NUEVO PASO: Uso seguro de variables de entorno nativas de Linux
       - name: Actualizar PDF en rama de vista previa
+        env:
+          MY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Configurar la identidad del bot de GitHub
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Crear una carpeta temporal ajena al Git actual para maniobrar
-          mkdir despliegue_pdf
-          cp build/nvoz.pdf despliegue_pdf/
-          cd despliegue_pdf
+          # Estructura de carpetas solicitada
+          mkdir -p pdf_cancionero
+          cp build/nvoz.pdf pdf_cancionero/
           
-          # Iniciar un Git limpio apuntando a la rama huérfana 'pdf-preview'
           git init
           git checkout --orphan pdf-preview
-          git add nvoz.pdf
-          git commit -m "Actualizar vista previa del cancionero (${{ steps.tag.outputs.version }})"
+          git add pdf_cancionero/
+          git commit -m "Actualizar vista previa del cancionero"
           
-          # Forzar la subida del PDF para reemplazar el viejo por el nuevo
-          git push 'https://x-access-token:${{ secrets.GITHUB_TOKEN }}@://github.com{{ github.repository }}.git' pdf-preview --force
+          # Usamos las variables nativas del sistema operativo ($MY_TOKEN y $GITHUB_REPOSITORY)
+          git push "https://x-access-token:$MY_TOKEN@://github.com" pdf-preview --force
