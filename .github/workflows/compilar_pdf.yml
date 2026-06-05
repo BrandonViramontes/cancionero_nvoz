@@ -1,22 +1,16 @@
 name: Compilar y Publicar PDF de LaTeX
-
 on:
   push:
     branches:
       - main
-
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
-
 permissions:
   contents: write
-  pages: write      # Permiso para activar la página web
-  id-token: write   # Permiso de seguridad requerido por GitHub Pages
 
 jobs:
   build_latex:
     runs-on: ubuntu-latest
-
     steps:
       - name: Descargar código del repositorio
         uses: actions/checkout@v4
@@ -39,7 +33,6 @@ jobs:
           name: Cancionero - ${{ steps.tag.outputs.version }}
           files: build/nvoz.pdf
 
-      # PASO DE VISTA PREVIA: Prepara el PDF para la web de GitHub Pages
       - name: Organizar archivo web
         run: |
           mkdir -p _site
@@ -47,10 +40,15 @@ jobs:
 
       - name: Subir artefacto web
         uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site/          # ← Ruta explícita al directorio
 
   deploy_pages:
     needs: build_latex
     runs-on: ubuntu-latest
+    permissions:                # ← Permisos declarados en el job correcto
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
