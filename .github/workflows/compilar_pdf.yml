@@ -4,7 +4,9 @@ on:
   push:
     branches:
       - main  # Se ejecuta cada vez que subes cambios a la rama 'main'
-
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  
 jobs:
   build_latex:
     runs-on: ubuntu-latest
@@ -38,3 +40,24 @@ jobs:
           tag_name: ${{ steps.tag.outputs.version }}
           name: Cancionero - ${{ steps.tag.outputs.version }}
           files: build/nvoz.pdf  # <--- Apunta a la carpeta build del servidor
+
+       # NUEVO PASO: Subir el PDF a la rama de vista previa
+      - name: Actualizar PDF en rama de vista previa
+        run: |
+          # Configurar la identidad del bot de GitHub
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@://github.com"
+          
+          # Crear una carpeta temporal ajena al Git actual para maniobrar
+          mkdir despliegue_pdf
+          cp build/nvoz.pdf despliegue_pdf/
+          cd despliegue_pdf
+          
+          # Iniciar un Git limpio apuntando a la rama huérfana 'pdf-preview'
+          git init
+          git checkout --orphan pdf-preview
+          git add nvoz.pdf
+          git commit -m "Actualizar vista previa del cancionero (${{ steps.tag.outputs.version }})"
+          
+          # Forzar la subida del PDF para reemplazar el viejo por el nuevo
+          git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@://github.com{{ github.repository }}.git" pdf-preview --force
