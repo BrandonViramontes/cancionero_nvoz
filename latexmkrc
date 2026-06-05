@@ -15,7 +15,7 @@ sub makesongsindex {
         # Si está ejecutándose en GitHub Actions (Linux)
         chomp($scriptPath = `kpsewhich --format=texmfscripts songidx.lua`);
         # Fallback si kpsewhich no lo encuentra
-        $scriptPath ||= "/usr/share/texlive/texmf-dist/doc/latex/songs/songidx/songidx.lua";    
+        $scriptPath ||= "./scripts/songidx.lua";    
         }
     
     print "=== Ejecutando makesongsindex ===\n";
