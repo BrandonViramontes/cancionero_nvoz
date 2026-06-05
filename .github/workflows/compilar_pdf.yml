@@ -46,7 +46,7 @@ jobs:
         run: |
           # Configurar la identidad del bot de GitHub
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@://github.com"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
           # Crear una carpeta temporal ajena al Git actual para maniobrar
           mkdir despliegue_pdf
@@ -60,4 +60,4 @@ jobs:
           git commit -m "Actualizar vista previa del cancionero (${{ steps.tag.outputs.version }})"
           
           # Forzar la subida del PDF para reemplazar el viejo por el nuevo
-          git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@://github.com{{ github.repository }}.git" pdf-preview --force
+          git push 'https://x-access-token:${{ secrets.GITHUB_TOKEN }}@://github.com{{ github.repository }}.git' pdf-preview --force
