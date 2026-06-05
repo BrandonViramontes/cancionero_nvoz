@@ -24,8 +24,8 @@ jobs:
           extra_packages: "songs"
           pre_compile: |
             kpsewhich --format=texmfscripts songidx.lua || echo "NO ENCONTRADO"
-            find / -name "songidx.lua" 2>/dev/null || echo "No existe"
-
+            find / -name "songidx*" 2>/dev/null || echo "No existe"
+            tlmgr info songs | grep -i "install" || echo "songs no instalado"
       - name: Crear etiqueta de versión
         id: tag
         run: echo "version=v$(date +'%Y.%m.%d-%H%M')" >> $GITHUB_OUTPUT
