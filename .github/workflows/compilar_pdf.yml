@@ -1,0 +1,40 @@
+name: Compilar y Publicar PDF de LaTeX
+
+on:
+  push:
+    branches:
+      - main  # Se ejecuta cada vez que subes cambios a la rama 'main'
+
+jobs:
+  build_latex:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Permiso obligatorio para que GitHub pueda publicar el PDF
+
+    steps:
+      # 1. Copiar el código de tu repositorio al servidor de GitHub
+      - name: Descargar código del repositorio
+        uses: actions/checkout@v4
+
+      # 2. Compilar usando LaTeXmk (leerá tu archivo latexmkrc automáticamente)
+      - name: Compilar LaTeX
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: nvoz.tex
+          # Forzamos el uso de latexmk si tu latexmkrc requiere parámetros específicos
+          compiler: latexmk
+          # Le indicamos que use el archivo de salida build como haces localmente
+          args: -pdf -shell-escape -outdir=build -interaction=nonstopmode
+
+      # 3. Crear una etiqueta (tag) automática para el lanzamiento
+      - name: Crear etiqueta de versión
+        id: tag
+        run: echo "version=v$(date +'%Y.%m.%d-%H%M')" >> $GITHUB_OUTPUT
+
+      # 4. Publicar el PDF (lo buscamos dentro de la carpeta build)
+      - name: Publicar PDF en Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.version }}
+          name: Cancionero - ${{ steps.tag.outputs.version }}
+          files: build/nvoz.pdf  # <--- Apunta a la carpeta build del servidor
