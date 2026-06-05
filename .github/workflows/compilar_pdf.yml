@@ -15,11 +15,6 @@ jobs:
       - name: Descargar código del repositorio
         uses: actions/checkout@v4
 
-      - name: Verificar songidx
-        run: |
-          kpsewhich --format=texmfscripts songidx.lua || echo "NO ENCONTRADO"
-          find / -name "songidx.lua" 2>/dev/null || echo "No existe en el sistema"
-
       - name: Compilar LaTeX
         uses: xu-cheng/latex-action@v3
         with:
@@ -27,6 +22,9 @@ jobs:
           compiler: latexmk
           args: -pdf -shell-escape -outdir=build -interaction=nonstopmode
           extra_packages: "songs"
+          pre_compile: |
+            kpsewhich --format=texmfscripts songidx.lua || echo "NO ENCONTRADO"
+            find / -name "songidx.lua" 2>/dev/null || echo "No existe"
 
       - name: Crear etiqueta de versión
         id: tag
