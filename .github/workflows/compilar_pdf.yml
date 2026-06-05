@@ -23,8 +23,10 @@ jobs:
           args: -pdf -shell-escape -outdir=build -interaction=nonstopmode
           extra_packages: "songs"
           pre_compile: |
-            kpsewhich --format=texmfscripts songidx.lua || echo "NO ENCONTRADO"
-            find / -name "songidx*" 2>/dev/null || echo "No existe"
+            # kpsewhich --format=texmfscripts songidx.lua || echo "NO ENCONTRADO"
+            echo "=== Buscando songidx ==="
+            find / -name "songidx*" 2>/dev/null
+            echo "=== Fin busqueda ==="
             tlmgr info songs | grep -i "install" || echo "songs no instalado"
       - name: Crear etiqueta de versión
         id: tag
