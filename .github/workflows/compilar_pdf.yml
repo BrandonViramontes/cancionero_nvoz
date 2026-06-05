@@ -37,6 +37,21 @@ jobs:
         run: |
           mkdir -p _site
           cp build/nvoz.pdf _site/
+          cat > _site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Cancionero</title>
+            <style>
+              body { margin: 0; }
+              iframe { width: 100vw; height: 100vh; border: none; }
+            </style>
+          </head>
+          <body>
+            <iframe src="nvoz.pdf"></iframe>
+          </body>
+          </html>
+          EOF
 
       - name: Subir artefacto web
         uses: actions/upload-pages-artifact@v3
