@@ -29,6 +29,11 @@ jobs:
             find / -name "songidx*" 2>/dev/null
             echo "=== Fin busqueda ==="
             tlmgr info songs | grep -i "install" || echo "songs no instalado"
+          post_compile: |
+            echo "=== Archivos en build ==="
+            ls build/
+            echo "=== Buscando .sxc y .sxd ==="
+            find . -name "*.sxc" -o -name "*.sxd" 2>/dev/null
       - name: Crear etiqueta de versión
         id: tag
         run: echo "version=v$(date +'%Y.%m.%d-%H%M')" >> $GITHUB_OUTPUT
