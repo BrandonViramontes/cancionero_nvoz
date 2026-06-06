@@ -30,10 +30,12 @@ jobs:
             echo "=== Fin busqueda ==="
             tlmgr info songs | grep -i "install" || echo "songs no instalado"
           post_compile: |
-            echo "=== Archivos en build ==="
-            ls build/
-            echo "=== Buscando .sxc y .sxd ==="
-            find . -name "*.sxc" -o -name "*.sxd" 2>/dev/null
+            echo "=== Ejecutando songidx manualmente ==="
+            texlua scripts/songidx.lua build/songs_index.sxd build/songs_index.sbx
+            echo "=== Resultado: $? ==="
+            echo "=== Recompilando para incluir el índice ==="
+            pdflatex -shell-escape -interaction=nonstopmode -output-directory=build nvoz.tex
+            pdflatex -shell-escape -interaction=nonstopmode -output-directory=build nvoz.tex
       - name: Crear etiqueta de versión
         id: tag
         run: echo "version=v$(date +'%Y.%m.%d-%H%M')" >> $GITHUB_OUTPUT
