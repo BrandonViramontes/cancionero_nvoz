@@ -1,0 +1,87 @@
+name: Compilar y Publicar PDF de LaTeX
+on:
+  push:
+    branches:
+      - main
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+permissions:
+  contents: write
+
+jobs:
+  build_latex:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código del repositorio
+        uses: actions/checkout@v4
+
+      - name: Compilar LaTeX
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: nvoz.tex
+          compiler: latexmk
+          args: -pdf -shell-escape -outdir=build -interaction=nonstopmode
+          extra_packages: "songs"
+          pre_compile: |
+            # kpsewhich --format=texmfscripts songidx.lua || echo "NO ENCONTRADO"
+            tlmgr install songs
+            echo "=== Buscando songidx ==="
+            find / -name "songidx*" 2>/dev/null
+            echo "=== Fin busqueda ==="
+            tlmgr info songs | grep -i "install" || echo "songs no instalado"
+          post_compile: |
+            # Ejecutando songidx manualmente, de esta forma no dependo del archivo latexmkrc
+            texlua scripts/songidx.lua build/songs_index.sxd build/songs_index.sbx
+            pdflatex -shell-escape -interaction=nonstopmode -output-directory=build nvoz.tex
+            pdflatex -shell-escape -interaction=nonstopmode -output-directory=build nvoz.tex
+      - name: Crear etiqueta de versión
+        id: tag
+        run: echo "version=v$(date +'%Y.%m.%d-%H%M')" >> $GITHUB_OUTPUT
+
+      - name: Publicar PDF en Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.version }}
+          name: Cancionero - ${{ steps.tag.outputs.version }}
+          files: build/nvoz.pdf
+
+      - name: Organizar archivo web
+        run: |
+          mkdir -p _site
+          cp build/nvoz.pdf _site/
+          cat > _site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Cancionero</title>
+            <style>
+              body { margin: 0; }
+              iframe { width: 100vw; height: 100vh; border: none; }
+            </style>
+          </head>
+          <body>
+            <iframe src="nvoz.pdf"></iframe>
+          </body>
+          </html>
+          EOF
+
+      - name: Subir artefacto web
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site/
+
+  deploy_pages:
+    needs: build_latex
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Desplegar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+        #end
