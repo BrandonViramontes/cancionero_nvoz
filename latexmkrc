@@ -12,9 +12,6 @@ sub makesongsindex {
         # Si estás en tu computadora (Windows)
         $scriptPath = "C:/texlive/2025/texmf-dist/doc/latex/songs/songidx/songidx.lua";
     } else {
-        # Si está ejecutándose en GitHub Actions (Linux)
-        chomp($scriptPath = `kpsewhich --format=texmfscripts songidx.lua`);
-        # Fallback si kpsewhich no lo encuentra
         $scriptPath ||= "./scripts/songidx.lua";    
         }
     
