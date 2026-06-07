@@ -24,7 +24,6 @@ jobs:
           extra_packages: "songs"
           pre_compile: |
             # kpsewhich --format=texmfscripts songidx.lua || echo "NO ENCONTRADO"
-            pre_compile: |
             tlmgr option repository https://mirror.ctan.org/systems/texlive/tlnet # red de distribución de paquetes LaTeX, y redirige automáticamente al servidor más cercano disponible
             tlmgr install songs
             echo "=== Buscando songidx ==="
