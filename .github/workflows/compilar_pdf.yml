@@ -50,7 +50,7 @@ jobs:
         run: |
           mkdir -p _site
           cp build/nvoz.pdf _site/
-          cat > _site/index.html << 'EOF'
+          cat > _site/index.html << EOF
           <!DOCTYPE html>
           <html>
           <head>
@@ -61,7 +61,7 @@ jobs:
             </style>
           </head>
           <body>
-            <iframe src="nvoz.pdf"></iframe>
+            <iframe src="nvoz.pdf?v=${TIMESTAMP}"></iframe>
           </body>
           </html>
           EOF
