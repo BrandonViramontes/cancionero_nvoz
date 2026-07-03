@@ -35,12 +35,15 @@
     \centerline            % Centrado
     \sffamily              % Opcional: Quitar para usar Palatino, dejar para usar Helvética
     \color{darkorange}
+    \par
 }
 
 % % --- Fuente de secciones ---
 % \renewcommand{\songsection}[1]{%
 %   \section*{\textcolor{darkorange}{#1}}%
 % }
+
+
 
 
 % --- Fuente de acordes ---
@@ -50,6 +53,14 @@
     %\bfseries        % Negrita (recomendado para que se distinga, pero opcional)
     \color{chords}
     #1
+}
+
+
+% --- Fuente de by={}------
+\renewcommand{\extendprelude}{%
+  \vspace{2pt}
+  \showrefs
+  {\normalsize\normalfont\textit\showauthors\par}%
 }
 
 % --- Fuente de li={}------
