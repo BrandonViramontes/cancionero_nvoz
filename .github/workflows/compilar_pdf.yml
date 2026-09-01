@@ -22,10 +22,6 @@ jobs:
           compiler: latexmk
           args: -pdf -shell-escape -outdir=build -interaction=nonstopmode
           texlive_version: "2025"
-          pre_compile: |
-            tlmgr option repository https://mirror.ctan.org/systems/texlive/tlnet
-            tlmgr update --self
-            tlmgr install songs
           post_compile: |
             texlua scripts/songidx.lua build/songs_index.sxd build/songs_index.sbx
             pdflatex -shell-escape -interaction=nonstopmode -output-directory=build nvoz.tex
