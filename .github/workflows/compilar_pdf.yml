@@ -37,6 +37,18 @@ jobs:
           name: Cancionero - ${{ steps.tag.outputs.version }}
           files: build/nvoz.pdf
 
+      - name: Limitar historial de Releases a las 3 versiones más recientes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          KEEP=3
+          gh release list --limit 100 --json tagName,createdAt \
+            --jq "sort_by(.createdAt) | reverse | .[$KEEP:] | .[].tagName" \
+            | while read -r old_tag; do
+                echo "Eliminando release y tag antiguo: $old_tag"
+                gh release delete "$old_tag" --yes --cleanup-tag --repo "$GITHUB_REPOSITORY"
+              done
+
       - name: Organizar archivo web
         run: |
           mkdir -p _site
@@ -52,7 +64,7 @@ jobs:
             </style>
           </head>
           <body>
-            <iframe src="nvoz.pdf?v=${TIMESTAMP}"></iframe>
+            <iframe src="nvoz.pdf?v=${{ steps.tag.outputs.version }}"></iframe>
           </body>
           </html>
           EOF
