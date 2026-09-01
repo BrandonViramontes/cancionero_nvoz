@@ -18,5 +18,5 @@ sub makesongsindex {
 
 # SOLO EJECUTAR LAS COPIAS LOCALES SI ESTAMOS EN WINDOWS
 if ($^O eq 'MSWin32') {
-    $success_cmd = 'copy build\\nvoz.pdf C:\\Users\\abeln\\Documentos\\SyncBoox\\Coro\\Cancioneros\\nvoz.pdf && copy build\\nvoz.pdf D:\\"vida espiritual"\\Coro\\repertorio\\cancioneros\\nvoz.pdf';
+    $success_cmd = 'copy build\\nvoz.pdf D:\\"vida espiritual"\\Coro\\repertorio\\cancioneros\\nvoz.pdf';
 }
