@@ -21,18 +21,12 @@ jobs:
           root_file: nvoz.tex
           compiler: latexmk
           args: -pdf -shell-escape -outdir=build -interaction=nonstopmode
-          extra_packages: "songs"
+          texlive_version: "20260101"
           pre_compile: |
-            # kpsewhich --format=texmfscripts songidx.lua || echo "NO ENCONTRADO"
-            tlmgr option repository https://mirror.ctan.org/systems/texlive/tlnet # red de distribución de paquetes LaTeX, y redirige automáticamente al servidor más cercano disponible
+            tlmgr option repository https://mirror.ctan.org/systems/texlive/tlnet
             tlmgr update --self
             tlmgr install songs
-            echo "=== Buscando songidx ==="
-            find / -name "songidx*" 2>/dev/null
-            echo "=== Fin busqueda ==="
-            tlmgr info songs | grep -i "install" || echo "songs no instalado"
           post_compile: |
-            # Ejecutando songidx manualmente, de esta forma no dependo del archivo latexmkrc
             texlua scripts/songidx.lua build/songs_index.sxd build/songs_index.sbx
             pdflatex -shell-escape -interaction=nonstopmode -output-directory=build nvoz.tex
             pdflatex -shell-escape -interaction=nonstopmode -output-directory=build nvoz.tex
