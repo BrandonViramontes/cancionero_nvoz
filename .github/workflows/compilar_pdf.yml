@@ -21,7 +21,7 @@ jobs:
           root_file: nvoz.tex
           compiler: latexmk
           args: -pdf -shell-escape -outdir=build -interaction=nonstopmode
-          texlive_version: "20260101"
+          texlive_version: "2025"
           pre_compile: |
             tlmgr option repository https://mirror.ctan.org/systems/texlive/tlnet
             tlmgr update --self
