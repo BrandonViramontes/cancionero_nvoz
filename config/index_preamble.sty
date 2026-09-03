@@ -5,10 +5,22 @@
 \indexsongsas{songindex}{\thepage} % Mostrar números de página
 
 % Modificar el comando \beginsong para incluir números de canción en el índice así como el autor
+
+% Numeración corrida del índice: contador global que NO se reinicia por sección
+% (a diferencia de songnum, que cada archivo de sección pone a 1).
+\newcounter{SBidxnum}
+
+% \SBsectionkey{<letra>}: clave de sección "invisible".
+%   - songidx la conserva al limpiar macros (queda la letra), y la usa para
+%     ordenar y para decidir los bloques del índice (\begin{idxblock}{<letra>}).
+%   - En el PDF no imprime nada, así que la entrada se ve solo como "NN. Título".
+\protected\def\SBsectionkey#1{}
+
 \makeatletter
 \xpatchcmd{\SB@@@beginsong}
   {\SB@addtoindexes\songtitle}  % Búsqueda: Lo que el paquete hace originalmente (enviar solo el título)
-  {\SB@addtoindexes{\thesongnum.\ \songtitle\ifx\songauthors\empty\else\ (\songauthors)\fi}} % Reemplazo: Enviamos "NUMERO. TITULO (AUTOR)"
+  {\stepcounter{SBidxnum}%
+   \SB@addtoindexes{\SBsectionkey{\songsectionletter}\arabic{SBidxnum}.\ \songtitle\ifx\songauthors\empty\else\ (\songauthors)\fi}} % Reemplazo: "<clave sección invisible>NUMERO. TITULO (AUTOR)"
   {}{} % Éxito / Fallo
 \makeatother
 
@@ -31,27 +43,9 @@
 % --- Nombres descriptivos para las secciones del índice ---
 \makeatletter
 
-\@namedef{songidxname@A}{Entrada}
-\@namedef{songidxname@B}{Señor ten piedad}
-\@namedef{songidxname@C}{Gloria}
-\@namedef{songidxname@D}{Aclamación}
-\@namedef{songidxname@E}{Presentación de Dones}
-\@namedef{songidxname@F}{Santo}
-\@namedef{songidxname@G}{Padre Nuestro}
-\@namedef{songidxname@H}{Fracción del Pan}
-\@namedef{songidxname@I}{Comunión}
-\@namedef{songidxname@J}{Postcomunión}
-\@namedef{songidxname@K}{Adoración Eucarística}
-\@namedef{songidxname@L}{Salida}
-\@namedef{songidxname@M}{Marianos}
-\@namedef{songidxname@N}{Espíritu Santo}
-\@namedef{songidxname@O}{Espiritualidad de la Cruz y más}
-\@namedef{songidxname@P}{Adviento / Navidad}
-\@namedef{songidxname@Q}{Cuaresma}
-\@namedef{songidxname@R}{Ambientación}
-\@namedef{songidxname@S}{Canciones}
-\@namedef{songidxname@T}{NVoz}
-\@namedef{songidxname@Z}{Versiones CEC Zac}
+\@namedef{songidxname@A}{Adoración}
+\@namedef{songidxname@B}{Cantos de Misa}
+
 
 \newcommand{\songidxname}[1]{%
   \ifcsname songidxname@#1\endcsname
@@ -59,21 +53,15 @@
   \fi
 }
 
-% Redefinir SB@maketitleindex para inyectar el nombre de sección
-% debajo del recuadro con la letra. Solo se modifica el begin-code
-% de SB@lgidx; el resto es idéntico al original del paquete songs.
+% Redefinir SB@maketitleindex para inyectar el nombre de sección.
+% Solo se modifica el begin-code de SB@lgidx: se omite el recuadro con
+% la letra (##1) y se deja únicamente el nombre descriptivo de la
+% sección (\songidxname). El resto es idéntico al original del paquete.
 \renewcommand\SB@maketitleindex{%
-  \ifnum\idxheadwidth>\z@%
-    \renewenvironment{SB@lgidx}[1]{%
-      \hbox{\SB@colorbox\idxbgcolor{\vbox{%
-        \hbox to\idxheadwidth{{\idxheadfont\relax##1}\hfil}%
-      }}}%
-      \nobreak\vskip3\p@\@plus2\p@\@minus2\p@\nointerlineskip%
-      \noindent{\large\bfseries\raggedright\songidxname{##1}\par}\smallskip% <- Formato
-    }{\penalty-50\vskip5\p@\@plus5\p@\@minus4\p@}%
-  \else%
-    \renewenvironment{SB@lgidx}[1]{}{}%
-  \fi%
+  \renewenvironment{SB@lgidx}[1]{%
+    \noindent{\large\bfseries\raggedright\songidxname{##1}\par}%
+    \nobreak\smallskip%
+  }{\penalty-50\vskip5\p@\@plus5\p@\@minus4\p@}%
   \renewenvironment{SB@smidx}[1]{}{}%
   \renewcommand\idxentry[2]{%
     \SB@ellipspread{\idxtitlefont\relax\ignorespaces##1\unskip}%

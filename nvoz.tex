@@ -49,6 +49,7 @@
 
 % Índice de Cantos
 \newgeometry{top=2cm, bottom=2cm, left=2cm, right=2cm} % Ajustar márgenes para el índice
+\sepindexesfalse            % <-- fuerza el formato "grande" con divisiones
 \showindex[2]{Índice de Cantos}{songindex} % [<columns>]{<title>}{<id>[mainindex[alphabetical identifier]]}
 \restoregeometry % Restaurar márgenes originales
 \newpage 
@@ -68,6 +69,9 @@
 % Iniciar el entorno de canciones
 \begin{songs}{songindex} % Usar el índice personalizado 
 \input{sections/cantos_Nvoz.tex}
+% Salto de página para separar secciones
+\sclearpage
+\input{sections/cantos_misa.tex}
 \end{songs}
 \end{document}
 
